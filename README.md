@@ -8,13 +8,11 @@ npx agent-aware
 
 That's it.
 
----
-
 ## What it does
 
-Installs two skills to `~/.claude/skills/` and injects the self-awareness protocol into your `CLAUDE.md`.
+Installs **3 skills** to `~/.claude/skills/`, **3 hooks** into `~/.claude/settings.json`, and injects the self-awareness protocol into your `CLAUDE.md`. Everything is idempotent — running it again won't duplicate anything.
 
-**The Meta-Principle:**
+## The meta-principle
 
 > An agent that understands its own token budget is an agent that never gets stuck.
 >
@@ -26,7 +24,57 @@ Installs two skills to `~/.claude/skills/` and injects the self-awareness protoc
 >
 > This is what separates agents that can run autonomously for hours from agents that silently degrade and fail.
 
----
+## Hooks
+
+Three hooks wired into `~/.claude/settings.json` automatically. They are global — active in every Claude Code session on this machine.
+
+### `context-status` (UserPromptSubmit)
+
+Runs before every prompt is processed. Reads the session JSONL, estimates how full the context window is, and injects the result as a system attachment the agent sees before answering.
+
+Token estimation works in two modes:
+
+- **Measured** — if the session has had a context compaction event, `preTokens` from the compact boundary is used directly. Accurate.
+- **Estimated** — for fresh sessions with no compaction yet, falls back to JSONL byte count / 6. Approximate but non-zero from the start.
+
+Context window detection:
+- Opus models (1M context) → `1,000,000` denominator
+- All other models → `200,000`
+
+What the agent sees injected before each prompt:
+
+```
+[CONTEXT: ~23% full · 46,000 tokens (estimated) · 312 entries · OK]
+```
+
+At 60%+ it adds an action line:
+
+```
+[CONTEXT: ~63% full · 126,000 tokens (measured) · 890 entries · HIGH]
+[ACTION: Write checkpoint to .claude/checkpoint.md. Delegate remaining work to a subagent.]
+```
+
+The hook is silent below 8,000 tokens (too early to add noise).
+
+Levels: `OK` (<40%) · `MODERATE` (40-59%) · `HIGH` (60-74%) · `CRITICAL` (75%+)
+
+### `checkpoint-pulse` (PostToolUse)
+
+Fires after every tool call. Maintains a counter in `/tmp/.agent-aware-pulse-{SESSION_ID}`. Every 15 tool calls it injects:
+
+```
+[CHECKPOINT PULSE: Tool call #15. Self-check: What was the goal? What have you done? Write state to .claude/checkpoint.md before continuing.]
+```
+
+This catches agents that have gone far off track before the context gets too full to recover.
+
+### `session-cleanup` (Stop)
+
+Fires when the session ends. Deletes the `/tmp/.agent-aware-pulse-{SESSION_ID}` counter file so stale counters don't accumulate across sessions.
+
+## Settings merge
+
+`cli.js` reads `~/.claude/settings.json`, checks whether `agent-aware` entries already exist in each hook array, and only appends if not present. Safe to run multiple times. Never overwrites unrelated hooks.
 
 ## Skills installed
 
@@ -57,17 +105,17 @@ Complete reference for parallel execution in Claude Code.
 
 ### `/claude-power`
 
-The native capabilities most people never discover.
+The native capabilities most people never discover. Uses self-disclosure — a lightweight index file pointing to reference docs the agent pulls on demand, so it doesn't burn tokens loading everything upfront.
 
 - `/fork` — full parent context in a worker (most underused command)
 - Subagent definition files with all 17 frontmatter fields
-- Model routing — haiku for search, opus for architecture (stop wasting tokens)
+- Model routing — haiku for search, opus for architecture
 - Effort levels — extended thinking control (low / high / xhigh / max)
 - Permission modes — stop clicking "yes" on every edit
 - Background agents + fire-and-forget with `initialPrompt`
 - Worktrees — isolated parallel builds, `.worktreeinclude` for secrets
 - Session resume — pick up any session days later
-- Hooks — run code on PreToolUse, PostToolUse, SubagentStart, SubagentStop, Stop
+- Hooks — run code on PreToolUse, PostToolUse, UserPromptSubmit, Stop
 - Memory system — user / project / local persistence scopes
 - Routines — scheduled agents, no human trigger needed
 - /batch — mechanical multi-file refactors
@@ -80,35 +128,22 @@ The native capabilities most people never discover.
 - The settings file — full control surface
 - The 5-level CLAUDE.md hierarchy
 
----
-
 ## Usage
 
 ```bash
-# Install in the current project
 cd your-project
 npx agent-aware
 ```
 
-After running:
-- `~/.claude/skills/agent-self-awareness/` — available in all Claude Code sessions on this machine
-- `~/.claude/skills/agent-orchestration-guide/` — same
-- `CLAUDE.md` — the self-awareness protocol block injected (or created)
-
-Then in any Claude Code session:
+After running, in any Claude Code session:
 
 ```
 /agent-self-awareness
 /agent-orchestration-guide
+/claude-power
 ```
 
----
-
-## What gets added to CLAUDE.md
-
-A self-contained block with the meta-principle, token budget routing table, self-check loop, and assumption audit. Idempotent — running `npx agent-aware` again won't duplicate it.
-
----
+Skills are global — they work in every project on this machine.
 
 ## License
 

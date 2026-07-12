@@ -1,6 +1,6 @@
 {
   "name": "agent-aware",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "One command to make your Claude Code agents self-aware. Installs the meta-principle protocol + two skills.",
   "bin": {
     "agent-aware": "./bin/cli.js"

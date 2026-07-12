@@ -63,10 +63,14 @@ function installHooks() {
     matcher: '*',
     hooks: [{ type: 'command', command: path.join(HOOK_DIR, 'checkpoint-pulse.sh') }]
   }
+  const cleanupHook = {
+    hooks: [{ type: 'command', command: path.join(HOOK_DIR, 'session-cleanup.sh') }]
+  }
 
   // Merge without duplicating — check if already registered
   if (!settings.hooks.UserPromptSubmit) settings.hooks.UserPromptSubmit = []
   if (!settings.hooks.PostToolUse) settings.hooks.PostToolUse = []
+  if (!settings.hooks.Stop) settings.hooks.Stop = []
 
   const alreadyHasContext = settings.hooks.UserPromptSubmit.some(h =>
     h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('agent-aware'))
@@ -74,13 +78,18 @@ function installHooks() {
   const alreadyHasPulse = settings.hooks.PostToolUse.some(h =>
     h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('agent-aware'))
   )
+  const alreadyHasCleanup = settings.hooks.Stop.some(h =>
+    h.hooks && h.hooks.some(hh => hh.command && hh.command.includes('agent-aware'))
+  )
 
   if (!alreadyHasContext) settings.hooks.UserPromptSubmit.push(contextHook)
   if (!alreadyHasPulse) settings.hooks.PostToolUse.push(pulseHook)
+  if (!alreadyHasCleanup) settings.hooks.Stop.push(cleanupHook)
 
   fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2))
   console.log('  hooks: context-status (UserPromptSubmit)')
   console.log('  hooks: checkpoint-pulse (PostToolUse every 15 calls)')
+  console.log('  hooks: session-cleanup (Stop — removes /tmp counter files)')
 }
 
 function injectClaudeMd() {
@@ -117,4 +126,5 @@ console.log('')
 console.log('hooks (active in every session):')
 console.log('  context-status   — injects token estimate before each prompt')
 console.log('  checkpoint-pulse — checkpoint reminder every 15 tool calls')
+console.log('  session-cleanup  — removes /tmp counter files on session end')
 console.log('')
