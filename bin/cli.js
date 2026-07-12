@@ -60,6 +60,7 @@ injectClaudeMd()
 
 console.log('\ndone. your agents are now self-aware.\n')
 console.log('skills installed to ~/.claude/skills/')
-console.log('  /agent-self-awareness   — meta-principle, self-check loop, assumption audit')
+console.log('  /agent-self-awareness      — meta-principle, self-check loop, assumption audit')
 console.log('  /agent-orchestration-guide — which primitive to use, inheritance, swarm patterns')
+console.log('  /claude-power              — 20 native features most people never use')
 console.log('')

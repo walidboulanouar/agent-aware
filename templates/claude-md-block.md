@@ -66,4 +66,5 @@ Question: the specific decision you need
 
 - `/agent-self-awareness` — full protocol: verification levels, delegation rules, escalation format
 - `/agent-orchestration-guide` — which primitive to use, inheritance model, swarm patterns
+- `/claude-power` — 20 native features most people never use (/fork, worktrees, hooks, memory, routines, model routing, effort levels, computer use, and more)
 <!-- agent-aware:end -->

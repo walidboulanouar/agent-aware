@@ -55,6 +55,31 @@ Complete reference for parallel execution in Claude Code.
 - 5 swarm patterns with full code (fan-out, pipeline, adversarial verify, loop-until-dry, budget-aware)
 - Hard limits table
 
+### `/claude-power`
+
+The native capabilities most people never discover.
+
+- `/fork` — full parent context in a worker (most underused command)
+- Subagent definition files with all 17 frontmatter fields
+- Model routing — haiku for search, opus for architecture (stop wasting tokens)
+- Effort levels — extended thinking control (low / high / xhigh / max)
+- Permission modes — stop clicking "yes" on every edit
+- Background agents + fire-and-forget with `initialPrompt`
+- Worktrees — isolated parallel builds, `.worktreeinclude` for secrets
+- Session resume — pick up any session days later
+- Hooks — run code on PreToolUse, PostToolUse, SubagentStart, SubagentStop, Stop
+- Memory system — user / project / local persistence scopes
+- Routines — scheduled agents, no human trigger needed
+- /batch — mechanical multi-file refactors
+- Agent View — coordinate multiple sessions
+- Reading subagent JSONL transcripts live
+- MCP servers scoped to specific agents
+- ScheduleWakeup — self-pacing loops with cache-aware delays
+- SendMessage — steer a running agent mid-task
+- Computer use — screen control, mouse, keyboard
+- The settings file — full control surface
+- The 5-level CLAUDE.md hierarchy
+
 ---
 
 ## Usage
