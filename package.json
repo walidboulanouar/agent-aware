@@ -1,0 +1,32 @@
+{
+  "name": "agent-aware",
+  "version": "1.0.0",
+  "description": "One command to make your Claude Code agents self-aware. Installs the meta-principle protocol + two skills.",
+  "bin": {
+    "agent-aware": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "skills",
+    "templates",
+    "README.md"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai-agents",
+    "agent-aware",
+    "self-aware",
+    "llm",
+    "anthropic"
+  ],
+  "author": "Walid Boulanouar <walid@ayautomate.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/walidboulanouar/agent-aware"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
